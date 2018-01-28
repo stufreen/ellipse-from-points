@@ -104,3 +104,6 @@ if(isEllipse(...conic)) {
   console.log('rotation:', theta * (180 / Math.PI), 'degrees');
   console.log('dimensions:', getWidthHeight(...conic));
 }
+
+// To do: Distance to ellipse function 
+// http://www.am.ub.edu/~robert/Documents/ellipse.pdf
