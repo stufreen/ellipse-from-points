@@ -1,5 +1,10 @@
 const Matrix = require('functional-matrix');
 
+// See: https://stackoverflow.com/questions/3441782/how-to-calculate-the-angle-of-a-vector-from-the-vertical
+const getAngle = (v1) => {
+  return Math.atan2(v1.y, v1.x);
+};
+
 // See: https://math.stackexchange.com/questions/163920/how-to-find-an-ellipse-given-five-points
 const getConic = (points) => {
   const equations = points.map(({ x, y }) => {
@@ -39,6 +44,7 @@ const getRotation = (a, b, c, d, e, f) => {
   return theta;
 };
 
+// See: https://math.stackexchange.com/questions/280937/finding-the-angle-of-rotation-of-an-ellipse-from-its-general-equation-and-the-ot
 const getWidthHeight = (a, b, c, d, e, f) => {
   const t = getRotation(a, b, c, d, e, f);
   const ct = Math.cos(t);
@@ -60,9 +66,8 @@ const getWidthHeight = (a, b, c, d, e, f) => {
   }
 };
 
-const getEigen = (mtx) => {
-  const eigen = new jsfeat.matrix_t(2, 2,  jsfeat.F32_t | jsfeat.C1_t);
-  const jfMtx = new jsfeat.matrix_t(2, 2,  jsfeat.F32_t | jsfeat.C1_t);
+const getDistance = (p, conic) => {
+
 };
 
 const points = [
