@@ -39,16 +39,17 @@ const getCenter = (a, b, c, d, e, f) => {
 };
 
 const getRotation = (a, b, c, d, e, f) => {
-  const tan2theta = a > c ? b / (c - a) : b / (a - c);
-  const theta = Math.atan(tan2theta) / 2;
+  const tan2theta = b / (a - c);
+  let theta = Math.atan(tan2theta) / 2;
+  if(a > c) {
+    theta += Math.PI / 2;
+  }
   return theta;
 };
 
-// See: https://math.stackexchange.com/questions/280937/finding-the-angle-of-rotation-of-an-ellipse-from-its-general-equation-and-the-ot
-const getWidthHeight = (a, b, c, d, e, f) => {
-  const t = getRotation(a, b, c, d, e, f);
-  const ct = Math.cos(t);
-  const st = Math.sin(t);
+const unRotate = ([a, b, c, d, e, f], theta) => {
+  const ct = Math.cos(theta);
+  const st = Math.sin(theta);
 
   const aPrime = (a * Math.pow(ct, 2)) + (b * ct * st) + (c * Math.pow(st, 2));
   const bPrime = 0;
@@ -57,17 +58,46 @@ const getWidthHeight = (a, b, c, d, e, f) => {
   const ePrime = (-1 * d * st) + (e * ct);
   const fPrime = f;
 
-  const h = (-1 * dPrime) / (2 * aPrime);
-  const w = (-1 * ePrime) / (2 * cPrime);
-
-  return {
-    height: h,
-    width: w,
-  }
+  return [aPrime, bPrime, cPrime, dPrime, ePrime, fPrime];
 };
 
-const getDistance = (p, conic) => {
+// See: https://math.stackexchange.com/questions/280937/finding-the-angle-of-rotation-of-an-ellipse-from-its-general-equation-and-the-ot
+const getWidthHeight = (a, b, c, d, e, f) => {
+  const theta = getRotation(a, b, c, d, e, f);
+  const [aP, bP, cP, dP, eP, fP] = unRotate([a, b, c, d, e, f], theta);
 
+  const w = Math.abs((-1 * dP) / (2 * aP));
+  const h = Math.abs((-1 * eP) / (2 * cP));
+
+  return {
+    width: w,
+    height: h,
+  };
+};
+
+// To do: Distance to ellipse function
+// http://www.am.ub.edu/~robert/Documents/ellipse.pdf
+const getDistance = (conic, p) => {
+  const theta = getRotation(...conic);
+  const center = getCenter(...conic);
+  const { width, height } = getWidthHeight(...conic);
+
+  const pT = { x: p.x - width, y: p.y - height };
+
+  const pP = {
+    x: (pT.x * Math.cos(-1 * theta)) - (pT.y * Math.sin(-1 * theta)),
+    y: (pT.y * Math.cos(-1 * theta)) + (pT.x * Math.sin(-1 * theta)),
+  };
+
+  console.log(pT, pP);
+
+  const angle = getAngle(pP);
+
+  const d = Math.sqrt(
+      Math.pow(p.x - (width * Math.cos(angle)), 2) +
+      Math.pow(p.y - (height * Math.sin(angle)), 2)
+    );
+  return d;
 };
 
 const points = [
@@ -103,7 +133,5 @@ if(isEllipse(...conic)) {
   const theta = getRotation(...conic);
   console.log('rotation:', theta * (180 / Math.PI), 'degrees');
   console.log('dimensions:', getWidthHeight(...conic));
+  console.log(getDistance(conic, { x: 5, y: 5 }));
 }
-
-// To do: Distance to ellipse function 
-// http://www.am.ub.edu/~robert/Documents/ellipse.pdf
